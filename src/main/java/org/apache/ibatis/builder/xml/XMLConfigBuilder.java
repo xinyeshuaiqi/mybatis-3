@@ -51,10 +51,21 @@ import org.apache.ibatis.type.JdbcType;
  * @author Kazuki Shimizu
  */
 public class XMLConfigBuilder extends BaseBuilder {
-
+  /**
+   * 是否已解析
+   */
   private boolean parsed;
+  /**
+   * Java XPath 解析器
+   */
   private final XPathParser parser;
+  /**
+   * 环境
+   */
   private String environment;
+  /**
+   * ReflectorFactory
+   */
   private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
   public XMLConfigBuilder(Reader reader) {
@@ -81,9 +92,17 @@ public class XMLConfigBuilder extends BaseBuilder {
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
+  /**
+   * 核心
+   *
+   * @param
+   * @return
+   * @throws
+   */
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
+    //设置configuration的Properties变量
     this.configuration.setVariables(props);
     this.parsed = false;
     this.environment = environment;
@@ -95,10 +114,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+
+    //解析 XML configuration 节点 （先获取root节点）
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
 
+  //解析各个标签
   private void parseConfiguration(XNode root) {
     try {
       //issue #117 read properties first

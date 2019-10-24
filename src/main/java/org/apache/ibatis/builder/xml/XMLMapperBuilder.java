@@ -51,12 +51,28 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ *
+ * 解析mapper文件
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
   private final XPathParser parser;
+
+  /**
+   * mapper构造器助手
+   */
   private final MapperBuilderAssistant builderAssistant;
+
+  /**
+   * 可被其他语句引用的可重用语句块的集合
+   *
+   * 例如：<sql id="userColumns"> ${alias}.id,${alias}.username,${alias}.password </sql>
+   */
   private final Map<String, XNode> sqlFragments;
+
+  /**
+   * 资源引用的地址
+   */
   private final String resource;
 
   @Deprecated
@@ -90,14 +106,20 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    //判断是否已被加载
     if (!configuration.isResourceLoaded(resource)) {
+      //解析mapper节点
       configurationElement(parser.evalNode("/mapper"));
+      //标记已加载 放进一个set里
       configuration.addLoadedResource(resource);
+      //绑定mapper
       bindMapperForNamespace();
     }
-
+    //解析待定的 <resultMap /> 节点
     parsePendingResultMaps();
+    //解析待定的 <cache-ref /> 节点
     parsePendingCacheRefs();
+    //解析待定的 SQL 语句的节点
     parsePendingStatements();
   }
 
@@ -107,14 +129,19 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
+      //获取 namespace
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
+
+
       cacheRefElement(context.evalNode("cache-ref"));
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+
+      //前方核能
       resultMapElements(context.evalNodes("/mapper/resultMap"));
       sqlElement(context.evalNodes("/mapper/sql"));
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
@@ -255,10 +282,12 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+
     String type = resultMapNode.getStringAttribute("type",
         resultMapNode.getStringAttribute("ofType",
             resultMapNode.getStringAttribute("resultType",
                 resultMapNode.getStringAttribute("javaType"))));
+
     Class<?> typeClass = resolveClass(type);
     if (typeClass == null) {
       typeClass = inheritEnclosingType(resultMapNode, enclosingType);
