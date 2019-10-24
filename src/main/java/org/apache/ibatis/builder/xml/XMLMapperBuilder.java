@@ -280,6 +280,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     return resultMapElement(resultMapNode, Collections.emptyList(), null);
   }
 
+  //高能
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings, Class<?> enclosingType) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
 
@@ -293,8 +294,12 @@ public class XMLMapperBuilder extends BaseBuilder {
       typeClass = inheritEnclosingType(resultMapNode, enclosingType);
     }
     Discriminator discriminator = null;
+
+    //创建 ResultMapping 集合
     List<ResultMapping> resultMappings = new ArrayList<>();
     resultMappings.addAll(additionalResultMappings);
+
+    //遍历resultMapNode 的子节点
     List<XNode> resultChildren = resultMapNode.getChildren();
     for (XNode resultChild : resultChildren) {
       if ("constructor".equals(resultChild.getName())) {
@@ -306,6 +311,8 @@ public class XMLMapperBuilder extends BaseBuilder {
         if ("id".equals(resultChild.getName())) {
           flags.add(ResultFlag.ID);
         }
+
+        //buildResultMappingFromContext 构建成 ResultMapping 对象
         resultMappings.add(buildResultMappingFromContext(resultChild, typeClass, flags));
       }
     }
@@ -313,6 +320,8 @@ public class XMLMapperBuilder extends BaseBuilder {
             resultMapNode.getValueBasedIdentifier());
     String extend = resultMapNode.getStringAttribute("extends");
     Boolean autoMapping = resultMapNode.getBooleanAttribute("autoMapping");
+
+    //执行解析
     ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, extend, discriminator, resultMappings, autoMapping);
     try {
       return resultMapResolver.resolve();
@@ -398,6 +407,8 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) throws Exception {
+
+    //获取各种属性
     String property;
     if (flags.contains(ResultFlag.CONSTRUCTOR)) {
       property = context.getStringAttribute("name");
@@ -416,9 +427,13 @@ public class XMLMapperBuilder extends BaseBuilder {
     String resultSet = context.getStringAttribute("resultSet");
     String foreignColumn = context.getStringAttribute("foreignColumn");
     boolean lazy = "lazy".equals(context.getStringAttribute("fetchType", configuration.isLazyLoadingEnabled() ? "lazy" : "eager"));
+
+    //获取各个属性对应的类
     Class<?> javaTypeClass = resolveClass(javaType);
     Class<? extends TypeHandler<?>> typeHandlerClass = resolveClass(typeHandler);
     JdbcType jdbcTypeEnum = resolveJdbcType(jdbcType);
+
+    // 构建 ResultMapping 对象
     return builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, jdbcTypeEnum, nestedSelect, nestedResultMap, notNullColumn, columnPrefix, typeHandlerClass, flags, resultSet, foreignColumn, lazy);
   }
 

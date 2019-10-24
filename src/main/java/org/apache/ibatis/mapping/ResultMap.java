@@ -33,6 +33,8 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ *
+ * 结果集，例如 <resultMap /> 解析后的对象
  */
 public class ResultMap {
   private Configuration configuration;

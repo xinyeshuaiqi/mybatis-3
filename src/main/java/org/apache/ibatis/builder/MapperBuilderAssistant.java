@@ -173,6 +173,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .build();
   }
 
+  /**
+   * 创建 ResultMap 对象，并添加到 Configuration 中
+   * 
+   * @param
+   * @return 
+   * @throws
+   */
   public ResultMap addResultMap(
       String id,
       Class<?> type,
@@ -183,6 +190,28 @@ public class MapperBuilderAssistant extends BaseBuilder {
     id = applyCurrentNamespace(id, false);
     extend = applyCurrentNamespace(extend, true);
 
+    /**
+     *
+     * <resultMap id="vehicleResult" type="Vehicle">
+     *   <id property="id" column="id" />
+     *   <result property="vin" column="vin"/>
+     *   <result property="year" column="year"/>
+     *   <result property="make" column="make"/>
+     *   <result property="model" column="model"/>
+     *   <result property="color" column="color"/>
+     *   <discriminator javaType="int" column="vehicle_type">  感觉这个基本不用
+     *     <case value="1" resultMap="carResult"/>
+     *     <case value="2" resultMap="truckResult"/>
+     *     <case value="3" resultMap="vanResult"/>
+     *     <case value="4" resultMap="suvResult"/>
+     *   </discriminator>
+     * </resultMap>
+     *
+     * <resultMap id="carResult" type="Car" extends="vehicleResult">
+     *   <result property="doorCount" column="door_count" />
+     * </resultMap>
+     *
+     */
     if (extend != null) {
       if (!configuration.hasResultMap(extend)) {
         throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
@@ -201,11 +230,14 @@ public class MapperBuilderAssistant extends BaseBuilder {
       if (declaresConstructor) {
         extendedResultMappings.removeIf(resultMapping -> resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR));
       }
+      //如果有父类，则将父类的 ResultMap 集合，添加到 resultMappings 中。
       resultMappings.addAll(extendedResultMappings);
     }
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator)
         .build();
+
+    //放在 Configuration
     configuration.addResultMap(resultMap);
     return resultMap;
   }
