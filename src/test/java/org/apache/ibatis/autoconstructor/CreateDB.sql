@@ -13,6 +13,7 @@
 --    See the License for the specific language governing permissions and
 --    limitations under the License.
 --
+--    初始化数据库数据
 
 DROP TABLE subject
 IF EXISTS;

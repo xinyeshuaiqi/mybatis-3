@@ -42,6 +42,7 @@ class AutoConstructorTest {
     }
 
     // populate in-memory database
+    //初始化数据到内存
     BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
         "org/apache/ibatis/autoconstructor/CreateDB.sql");
   }
