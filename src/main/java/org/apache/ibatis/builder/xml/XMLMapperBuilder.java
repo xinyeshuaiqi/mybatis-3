@@ -141,15 +141,21 @@ public class XMLMapperBuilder extends BaseBuilder {
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
 
-      //前方核能
+      //核能一
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+
+      //核能二
       sqlElement(context.evalNodes("/mapper/sql"));
+
+      //核能三
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
+
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
     }
   }
 
+  //遍历 <select />、<insert />、<update />、<delete /> 节点
   private void buildStatementFromContext(List<XNode> list) {
     if (configuration.getDatabaseId() != null) {
       buildStatementFromContext(list, configuration.getDatabaseId());
@@ -373,6 +379,8 @@ public class XMLMapperBuilder extends BaseBuilder {
     return builderAssistant.buildDiscriminator(resultType, column, javaTypeClass, jdbcTypeEnum, typeHandlerClass, discriminatorMap);
   }
 
+
+  //  sqlElement(list, configuration.getDatabaseId());
   private void sqlElement(List<XNode> list) {
     if (configuration.getDatabaseId() != null) {
       sqlElement(list, configuration.getDatabaseId());
@@ -381,9 +389,13 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   private void sqlElement(List<XNode> list, String requiredDatabaseId) {
+    //遍历所有<sql />节点
     for (XNode context : list) {
+      //获取databaseId 属性
       String databaseId = context.getStringAttribute("databaseId");
+      //获取isd 属性  格式为 `${namespace}.${id}`
       String id = context.getStringAttribute("id");
+
       id = builderAssistant.applyCurrentNamespace(id, false);
       if (databaseIdMatchesCurrent(id, databaseId, requiredDatabaseId)) {
         sqlFragments.put(id, context);
@@ -462,9 +474,13 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  //绑定 Mapper
   private void bindMapperForNamespace() {
     String namespace = builderAssistant.getCurrentNamespace();
     if (namespace != null) {
+
+      //获得 Mapper 映射配置文件对应的 Mapper 接口，实际上类名就是 namespace
+
       Class<?> boundType = null;
       try {
         boundType = Resources.classForName(namespace);
