@@ -92,6 +92,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * Mapper 注解构造器，负责解析 Mapper 接口上的注解。
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -131,11 +133,15 @@ public class MapperAnnotationBuilder {
       assistant.setCurrentNamespace(type.getName());
       parseCache();
       parseCacheRef();
+
+      //遍历所有方法，解析其上的注解
       Method[] methods = type.getMethods();
       for (Method method : methods) {
         try {
           // issue #237
           if (!method.isBridge()) {
+
+            //执行解析
             parseStatement(method);
           }
         } catch (IncompleteElementException e) {
@@ -307,6 +313,7 @@ public class MapperAnnotationBuilder {
       Integer timeout = null;
       StatementType statementType = StatementType.PREPARED;
       ResultSetType resultSetType = configuration.getDefaultResultSetType();
+
       SqlCommandType sqlCommandType = getSqlCommandType(method);
       boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
       boolean flushCache = !isSelect;
